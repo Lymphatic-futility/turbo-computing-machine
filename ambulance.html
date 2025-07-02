@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AMBULANCE SOS</title>
+  <style>
+    body { background: #0d0d0d; color: white; font-family: Arial, sans-serif; text-align: center; padding: 60px 20px; }
+    h1 { font-size: 2.5rem; margin-bottom: 40px; }
+    .distress-button { position: relative; width: 200px; height: 200px; margin: 20px auto; border-radius: 50%;
+                        background: radial-gradient(circle at center, #00e6b8 40%, #000000 100%);
+                        display: flex; justify-content: center; align-items: center;
+                        color: white; font-size: 20px; font-weight: bold; cursor: pointer;
+                        box-shadow: 0 0 30px #00e6b8, 0 0 60px rgba(255, 0, 0, 0.6); }
+    .pulse-ring { position: absolute; width: 200px; height: 200px; border-radius: 50%; background-color: rgba(255, 0, 0, 0.2); animation: pulse 1.5s infinite; z-index: 1; }
+    @keyframes pulse { 0% { transform: scale(1); opacity: 0.7; } 70% { transform: scale(1.7); opacity: 0; } 100% { transform: scale(2); opacity: 0; } }
+    .message { margin-top: 20px; font-weight: bold; color: #00ff88; }
+  </style>
+</head>
+<body>
+  <h1>🚑 AMBULANCE EMERGENCY</h1>
+  <div class="distress-button" onclick="sendSOS()">
+    <span>SEND SOS</span>
+    <div class="pulse-ring"></div>
+  </div>
+  <div class="message" id="msg"></div>
+  <script>
+    const emergencyType = "ambulance";
+    let userLat = null;
+    let userLng = null;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        userLat = position.coords.latitude;
+        userLng = position.coords.longitude;
+      },
+      () => { alert("Location access denied. Enable GPS."); }
+    );
+    function sendSOS() {
+      if (userLat && userLng) {
+        fetch('/send_sos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ latitude: userLat, longitude: userLng, emergency: emergencyType })
+        }).then(res => res.json())
+          .then(data => { document.getElementById("msg").innerText = "✅ SOS Sent!"; })
+          .catch(err => { document.getElementById("msg").innerText = "❌ Error sending alert."; });
+      } else {
+        alert("Location not ready yet.");
+      }
+    }
+  </script>
+    <a href="index.html" class="back-button">← Back to Menu</a>
+
+<style>
+  .back-button {
+    display: inline-block;
+    margin-top: 50px;
+    padding: 12px 28px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(to right, #0072ff, #00c6ff);
+    border-radius: 30px;
+    text-decoration: none;
+    box-shadow: 0 0 15px rgba(0, 198, 255, 0.6);
+    transition: all 0.3s ease;
+  }
+
+  .back-button:hover {
+    background: linear-gradient(to right, #00c6ff, #0072ff);
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 198, 255, 0.9);
+    color: black;
+  }
+</style>
+</body>
+</html>
